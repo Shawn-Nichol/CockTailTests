@@ -30,58 +30,77 @@
 
 package com.raywenderlich.android.cocktails.game.model
 
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert
 import org.junit.Test
 
 class GameUnitTests {
 
-  @Test
-  fun whenIncrementingScore_shouldIncrementCurrentScore() {
-    val game = Game(emptyList(), 0)
+    @Test
+    fun whenIncrementingScore_shouldIncrementCurrentScore() {
+        val game = Game(emptyList(), 0)
 
-    game.incrementScore()
+        game.incrementScore()
 
-    Assert.assertEquals("Current score should have been 1", 1, game.currentScore)
-  }
+        Assert.assertEquals("Current score should have been 1", 1, game.currentScore)
+    }
 
-  @Test
-  fun whenIncrementingScore_aboveHighScore_shouldAlsoIncrementHighScore() {
-    val game = Game(emptyList(), 0)
+    @Test
+    fun whenIncrementingScore_aboveHighScore_shouldAlsoIncrementHighScore() {
+        val game = Game(emptyList(), 0)
 
-    game.incrementScore()
+        game.incrementScore()
 
-    Assert.assertEquals(1, game.highestScore)
-  }
+        Assert.assertEquals(1, game.highestScore)
+    }
 
-  @Test
-  fun whenIncrementingScore_belowHighScore_shouldNotIncrementHighScore() {
-    val game = Game(emptyList(), 10)
+    @Test
+    fun whenIncrementingScore_belowHighScore_shouldNotIncrementHighScore() {
+        val game = Game(emptyList(), 10)
 
-    game.incrementScore()
+        game.incrementScore()
 
-    Assert.assertEquals(10, game.highestScore)
-  }
+        Assert.assertEquals(10, game.highestScore)
+    }
 
-  @Test
-  fun whenGettingNextQuestion_shouldReturnIt() {
-    val question1 = Question("CORRECT", "INCORRECT")
-    val questions = listOf(question1)
-    val game = Game(questions)
+    @Test
+    fun whenGettingNextQuestion_shouldReturnIt() {
+        val question1 = Question("CORRECT", "INCORRECT")
+        val questions = listOf(question1)
+        val game = Game(questions)
 
-    val nextQuestion = game.nextQuestion()
+        val nextQuestion = game.nextQuestion()
 
-    Assert.assertSame(question1, nextQuestion)
-  }
+        Assert.assertSame(question1, nextQuestion)
+    }
 
-  @Test
-  fun whenGettingNextQuestion_withoutMoreQuestions_shouldReturnNull() {
-    val question1 = Question("CORRECT", "INCORRECT")
-    val questions = listOf(question1)
-    val game = Game(questions)
+    @Test
+    fun whenGettingNextQuestion_withoutMoreQuestions_shouldReturnNull() {
+        val question1 = Question("CORRECT", "INCORRECT")
+        val questions = listOf(question1)
+        val game = Game(questions)
 
-    game.nextQuestion()
-    val nextQuestion = game.nextQuestion()
+        game.nextQuestion()
+        val nextQuestion = game.nextQuestion()
 
-    Assert.assertNull(nextQuestion)
-  }
+        Assert.assertNull(nextQuestion)
+    }
+
+    @Test
+    fun whenAnswering_shouldDelegateToQuestion() {
+        // Create a mock of question.
+        val question = mock<Question>()
+        val game = Game(listOf(question))
+
+        // Call the answer method with the mock as a parameter.
+        game.answer(question, "OPTION")
+
+        // Verify the method answer was called on teh Question mock.
+        // Times 1 is used to confirm that answer was called exactly one time.
+        // Argument matcher is used to check that the answer method was called with a String equal to OPTION
+        verify(question, times(1)).answer(eq("OPTION"))
+    }
 }

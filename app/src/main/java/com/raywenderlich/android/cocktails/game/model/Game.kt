@@ -55,4 +55,8 @@ class Game(private val questions: List<Question>,
     return null
   }
 
+  fun answer(question: Question, option: String) {
+    question.answer(option)
+  }
+
 }
