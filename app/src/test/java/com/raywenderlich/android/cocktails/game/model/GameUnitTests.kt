@@ -30,12 +30,10 @@
 
 package com.raywenderlich.android.cocktails.game.model
 
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 
 class GameUnitTests {
 
@@ -102,5 +100,36 @@ class GameUnitTests {
         // Times 1 is used to confirm that answer was called exactly one time.
         // Argument matcher is used to check that the answer method was called with a String equal to OPTION
         verify(question, times(1)).answer(eq("OPTION"))
+    }
+
+    @Test
+    fun whenAnsweringCorrectly_shouldIncrementCurrentScore() {
+        // Creates a mock question object.
+        val question = mock<Question>()
+        // Stubs the question.answer method with anyString and always returns false.
+        whenever(question.answer(anyString())).thenReturn(true)
+
+        val game = Game(listOf(question))
+
+        // call the answer() of the game.
+        game.answer(question, "OPTION")
+
+        // Check that the game score was incremented
+        Assert.assertEquals(1, game.currentScore)
+    }
+
+    @Test
+    fun whenAnsweringIncorrectly_shouldNotIncrementScore() {
+        // Creating a mock questions object
+        val question = mock<Question>()
+        // Stubs the question.answer method with anyString and always returns false.
+        whenever(question.answer(anyString())).thenReturn(false)
+
+        val game = Game(listOf(question))
+        // calls the answer() of the game object
+        game.answer(question, "OPTION")
+
+         // Checks that the game score was not incremented.
+        Assert.assertEquals(0, game.currentScore)
     }
 }

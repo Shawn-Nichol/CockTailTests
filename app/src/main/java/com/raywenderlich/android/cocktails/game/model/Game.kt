@@ -56,7 +56,8 @@ class Game(private val questions: List<Question>,
   }
 
   fun answer(question: Question, option: String) {
-    question.answer(option)
+    val result = question.answer(option)
+    if(result) incrementScore()
   }
 
 }
