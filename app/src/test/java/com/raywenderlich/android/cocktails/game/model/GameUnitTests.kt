@@ -36,34 +36,6 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 
 class GameUnitTests {
-
-    @Test
-    fun whenIncrementingScore_shouldIncrementCurrentScore() {
-        val game = Game(emptyList(), 0)
-
-        game.incrementScore()
-
-        Assert.assertEquals("Current score should have been 1", 1, game.currentScore)
-    }
-
-    @Test
-    fun whenIncrementingScore_aboveHighScore_shouldAlsoIncrementHighScore() {
-        val game = Game(emptyList(), 0)
-
-        game.incrementScore()
-
-        Assert.assertEquals(1, game.highestScore)
-    }
-
-    @Test
-    fun whenIncrementingScore_belowHighScore_shouldNotIncrementHighScore() {
-        val game = Game(emptyList(), 10)
-
-        game.incrementScore()
-
-        Assert.assertEquals(10, game.highestScore)
-    }
-
     @Test
     fun whenGettingNextQuestion_shouldReturnIt() {
         val question1 = Question("CORRECT", "INCORRECT")
@@ -109,13 +81,14 @@ class GameUnitTests {
         // Stubs the question.answer method with anyString and always returns false.
         whenever(question.answer(anyString())).thenReturn(true)
 
-        val game = Game(listOf(question))
+        val score = mock<Score>()
+        val game = Game(listOf(question), score)
 
         // call the answer() of the game.
         game.answer(question, "OPTION")
 
         // Check that the game score was incremented
-        Assert.assertEquals(1, game.currentScore)
+        verify(score).increment()
     }
 
     @Test
@@ -124,12 +97,13 @@ class GameUnitTests {
         val question = mock<Question>()
         // Stubs the question.answer method with anyString and always returns false.
         whenever(question.answer(anyString())).thenReturn(false)
+        val score = mock<Score>()
 
         val game = Game(listOf(question))
         // calls the answer() of the game object
         game.answer(question, "OPTION")
 
          // Checks that the game score was not incremented.
-        Assert.assertEquals(0, game.currentScore)
+        verify(score, never()).increment()
     }
 }
