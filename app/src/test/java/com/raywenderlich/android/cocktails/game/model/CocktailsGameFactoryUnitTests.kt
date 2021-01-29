@@ -6,6 +6,7 @@ import com.raywenderlich.android.cocktails.common.repository.CocktailsRepository
 import com.raywenderlich.android.cocktails.common.repository.RepositoryCallback
 import com.raywenderlich.android.cocktails.game.CocktailsGameFactory
 import com.raywenderlich.android.cocktails.game.CocktailsGameFactoryImpl
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -59,25 +60,80 @@ class CocktailsGameFactoryUnitTests {
         verify(callback).onError()
     }
 
+    @Test
+    fun buildGame_shouldGetHighScoreFromRepo() {
+        setupRepositoryWithCocktails(repository)
+        factory.buildGame(mock())
+
+        verify(repository).getHighScore()
+    }
+
+    @Test
+    fun buildGame_shouldBuildGameWithHighScore() {
+        setupRepositoryWithCocktails(repository)
+        val highScore = 100
+
+        // Stubbing repository high score
+        whenever(repository.getHighScore()).thenReturn(highScore)
+
+        factory.buildGame(object : CocktailsGameFactory.Callback {
+            override fun onSuccess(game: Game) {
+                Assert.assertEquals(highScore, game.score.highest)
+            }
+
+            override fun onError() {
+                Assert.fail()
+            }
+        })
+    }
+
+    @Test
+    fun buildGame_shouldBuildGameWithQuestions() {
+        setupRepositoryWithCocktails(repository)
+
+        factory.buildGame(object : CocktailsGameFactory.Callback {
+            override fun onSuccess(game: Game) {
+                cocktails.forEach {
+                    assertQuestion(game.nextQuestion(),
+                            it.strDrink,
+                            it.strDrinkThumb)
+                }
+            }
+
+            override fun onError() {
+                Assert.fail()
+            }
+        })
+    }
+
     private fun setupRepositoryWithCocktails(repository: CocktailsRepository) {
         // doAnswer is used to stub the repository.getAlcoholic() with success and return a list.
         doAnswer {
             // Mock list created from repository
-            val callback: RepositoryCallback<List<Cocktail>, String>
-            = it.getArgument(0)
+            val callback: RepositoryCallback<List<Cocktail>, String> = it.getArgument(0)
             // Mock method that we are spying on.
             callback.onSuccess(cocktails)
         }.whenever(repository).getAlcoholic(any())
     }
 
-    private fun setUpRepositoryWithError (repository: CocktailsRepository) {
+    private fun setUpRepositoryWithError(repository: CocktailsRepository) {
         // doAnswer is used to stub the repository.getAlcoholic() with success and return a list.
         doAnswer {
             // Mock list createdd form repository
-            val callback: RepositoryCallback<List<Cocktail>, String>
-            = it.getArgument(0)
+            val callback: RepositoryCallback<List<Cocktail>, String> = it.getArgument(0)
             // Mock method that we are spying on.
             callback.onError("Error")
         }.whenever(repository).getAlcoholic(any())
+    }
+
+    private fun assertQuestion(
+            question: Question?,
+            correctOption: String,
+            imageUrl: String?) {
+
+        Assert.assertNotNull(question)
+        Assert.assertEquals(imageUrl, question?.imageUrl)
+        Assert.assertEquals(correctOption, question?.correctOption)
+        Assert.assertNotEquals(correctOption, question?.incorrectOption)
     }
 }
