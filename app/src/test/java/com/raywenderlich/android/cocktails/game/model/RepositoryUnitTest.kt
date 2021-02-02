@@ -12,8 +12,8 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 /**
- * RunWith: annotation is to instruct that youar egoing to write tests using Mockito. Now you can
- * annotate using @Mock every property that you'll later use as mocks. Notice that in the setup
+ * RunWith: annotation is to instruct that you are going to write tests using Mockito. Now you can
+ * annotate using @Mock, every property that you'll later use as mocks.
  */
 @RunWith(MockitoJUnitRunner::class)
 class RepositoryUnitTest {

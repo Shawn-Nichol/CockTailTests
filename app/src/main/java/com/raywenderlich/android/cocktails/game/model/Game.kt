@@ -31,23 +31,33 @@
 package com.raywenderlich.android.cocktails.game.model
 
 class Game(private val questions: List<Question>,
-            val score: Score = Score(0)) {
+           val score: Score = Score(0)) {
 
-  private var questionIndex = -1
+    private var questionIndex = -1
 
-  fun nextQuestion(): Question? {
-    if (questionIndex + 1 < questions.size) {
-      questionIndex++
-      return questions[questionIndex]
+    val gameOver: Boolean
+        get() = questionsAnsweredIncorrectly >= 3
+
+    var questionsAnsweredIncorrectly = 0
+    var questionsAnsweredCorrectlySequentially = 0
+
+    fun nextQuestion(): Question? {
+        if (questionIndex + 1 < questions.size) {
+            questionIndex++
+            return questions[questionIndex]
+        }
+        return null
     }
-    return null
-  }
 
-  fun answer(question: Question, option: String) {
-    val result = question.answer(option)
-    if(result) {
-      score.increment()
+    fun answer(question: Question, option: String) {
+        val result = question.answer(option)
+        if (result) {
+            score.increment()
+            questionsAnsweredCorrectlySequentially ++
+        } else {
+            questionsAnsweredIncorrectly ++
+            questionsAnsweredCorrectlySequentially = 0
+        }
     }
-  }
 
 }

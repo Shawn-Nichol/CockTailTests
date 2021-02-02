@@ -106,4 +106,62 @@ class GameUnitTests {
          // Checks that the game score was not incremented.
         verify(score, never()).increment()
     }
+
+    @Test
+    fun whenAnsweringIncorrectly_increaseQuestionIncorrect() {
+        // create a mock question
+        val question = mock<Question>()
+        // stubing
+        whenever(question.answer(anyString())).thenReturn(false)
+
+        val game = Game(listOf(question))
+        game.answer(question, "OPTION")
+
+        // Check that questionsAnsweredIncorrectly increases
+        Assert.assertEquals(1, game.questionsAnsweredIncorrectly)
+    }
+
+    @Test
+    fun whenAnsweringIncorrectly_threeTimesGameIsOver() {
+        val question1 = mock<Question>()
+        val question2 = mock<Question>()
+        val question3 = mock<Question>()
+
+        whenever(question1.answer(anyString())).thenReturn(false)
+        whenever(question2.answer(anyString())).thenReturn(false)
+        whenever(question3.answer(anyString())).thenReturn(false)
+
+        val game = Game(listOf(question1, question2, question3))
+        game.answer(question1, "INCORRECT")
+        game.answer(question2, "INCORRECT")
+        game.answer(question3, "INCORRECT")
+
+        Assert.assertTrue(game.gameOver)
+    }
+
+    @Test
+    fun whenAnsweringCorrectly_IncreaseSequentialScore() {
+        val question = mock<Question>()
+
+        whenever(question.answer(anyString())).thenReturn(true)
+
+        val game = Game(listOf(question))
+        game.answer(question, "CORRECT")
+
+        Assert.assertEquals(1, game.questionsAnsweredCorrectlySequentially)
+    }
+
+    @Test
+    fun whenAnsweringIncorrectly_resetSequentialScore() {
+        val question = mock<Question>()
+        whenever(question.answer(anyString())).thenReturn(false)
+
+        val game = Game(listOf(question))
+        game.questionsAnsweredCorrectlySequentially = 1
+        game.answer(question, "INCORRECT")
+
+        Assert.assertEquals(0, game.questionsAnsweredCorrectlySequentially)
+    }
+
+    @Test
 }

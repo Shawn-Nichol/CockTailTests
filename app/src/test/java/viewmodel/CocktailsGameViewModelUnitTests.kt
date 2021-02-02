@@ -229,6 +229,32 @@ class CocktailsGameViewModelUnitTests {
 
     }
 
+    @Test
+    fun init_shouldHideGameOver() {
+        viewModel.initGame()
+      //  verify().onChanged(eq(false))
+    }
+
+    @Test
+    fun whenAnsweringIncorrectly_threeTimesInARow_endGame() {
+        val question1 = mock<Question>()
+        val question2 = mock<Question>()
+        val question3 = mock<Question>()
+        val score = mock<Score>()
+
+
+        // Stubbing
+        whenever(game.nextQuestion())
+                .thenReturn(question1)
+                .thenReturn(question2)
+                .thenReturn(question3)
+
+        // buildGame
+        viewModel.initGame()
+
+        viewModel.endGame()
+    }
+
 
     /**
      * Used to stub the buildGame() method from the CocktailsGameFactory class.
@@ -251,4 +277,6 @@ class CocktailsGameViewModelUnitTests {
             callback.onError()
         }.whenever(factory).buildGame(any())
     }
+
+
 }

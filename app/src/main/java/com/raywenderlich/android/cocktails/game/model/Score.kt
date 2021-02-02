@@ -7,6 +7,7 @@ class Score(highestScore: Int = 0) {
     var highest = highestScore
         private set
 
+
     fun increment() {
         current++
         if(current > highest) {

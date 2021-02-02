@@ -19,12 +19,14 @@ class CocktailsGameViewModel(
     private val errorLiveData = MutableLiveData<Boolean>()
     private val questionLiveData = MutableLiveData<Question>()
     private val scoreLiveData = MutableLiveData<Score>()
+    private val gameOverLiveData = MutableLiveData<Boolean>()
 
 
     fun getLoading(): LiveData<Boolean> = loadingLiveData
     fun getError(): LiveData<Boolean> = errorLiveData
     fun getQuestion(): LiveData<Question> = questionLiveData
     fun getScore(): LiveData<Score> = scoreLiveData
+    fun getGameOver(): LiveData<Boolean> = gameOverLiveData
 
     private var game: Game? = null
 
@@ -36,6 +38,7 @@ class CocktailsGameViewModel(
                 loadingLiveData.value = false
                 errorLiveData.value = false
                 scoreLiveData.value = game.score
+                gameOverLiveData.value = false
                 // this@ is a label qualifier, label refers to the scope "this" is meant to be from
                 this@CocktailsGameViewModel.game = game
                 nextQuestion()
@@ -60,7 +63,12 @@ class CocktailsGameViewModel(
             repository.saveHighScore(it.score.highest)
             scoreLiveData.value = it.score
             questionLiveData.value = question
+//            gameOverLiveData.value = it.isOver
         }
+
+    }
+
+    fun endGame() {
 
     }
 
