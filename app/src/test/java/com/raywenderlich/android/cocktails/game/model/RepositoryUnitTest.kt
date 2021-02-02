@@ -7,20 +7,27 @@ import com.raywenderlich.android.cocktails.common.repository.CocktailsRepository
 import com.raywenderlich.android.cocktails.common.repository.CocktailsRepositoryImpl
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
 
+/**
+ * RunWith: annotation is to instruct that youar egoing to write tests using Mockito. Now you can
+ * annotate using @Mock every property that you'll later use as mocks. Notice that in the setup
+ */
+@RunWith(MockitoJUnitRunner::class)
 class RepositoryUnitTest {
 
+    @Mock
     private lateinit var api: CocktailsApi
+    @Mock
     private lateinit var sharedPreferences: SharedPreferences
+    @Mock
     private lateinit var sharedPreferencesEditor: SharedPreferences.Editor
     private lateinit var repository: CocktailsRepository
 
     @Before
     fun setup() {
-        // create Mock objects
-        api = mock()
-        sharedPreferences = mock()
-        sharedPreferencesEditor = mock()
         // Stub, return sharedPreference editor
         whenever(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor)
         repository = CocktailsRepositoryImpl(api, sharedPreferences)
