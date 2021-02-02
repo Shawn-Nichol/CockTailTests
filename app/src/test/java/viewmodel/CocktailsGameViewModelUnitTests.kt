@@ -64,7 +64,7 @@ class CocktailsGameViewModelUnitTests {
     fun init_shouldBuildGame() {
         viewModel.initGame()
 
-        // Verfiy: that certain behavior happened once.
+        // Verify: that certain behavior happened once.
         verify(factory).buildGame(any())
     }
 
@@ -99,16 +99,147 @@ class CocktailsGameViewModelUnitTests {
     }
 
 
+
+
+    /**
+     * Show the error view
+     */
+    @Test
+    fun init_shouldShowError_whenFactoryReturnsError() {
+        setupFactoryWithError()
+        viewModel.initGame()
+        verify(errorObserver).onChanged(eq(true))
+    }
+
+    /**
+     * Stop showing the loading view
+     */
+    @Test
+    fun init_shouldHideLoading_whenFactoryReturnsError() {
+        setupFactoryWithError()
+
+        viewModel.initGame()
+        verify(loadingObserver).onChanged(eq(false))
+    }
+
+    /**
+     * Check the error is set to false before calling the repository
+     */
+    @Test
+    fun init_shouldHideError_whenFactoryReturnSuccess() {
+        setUpFactoryWithSuccessGame(game)
+        viewModel.initGame()
+
+        verify(errorObserver, times(2)).onChanged(eq(false))
+
+    }
+
+    /**
+     * check the error is set to false when the game couldn't be built because of an error.
+     */
+    @Test
+    fun init_shouldHideLoading_whenFactoryReturnSuccess() {
+        setUpFactoryWithSuccessGame(game)
+
+        viewModel.initGame()
+
+        verify(loadingObserver).onChanged(eq(false))
+    }
+
+
+    /**
+     * Show the score when the game is built
+     */
+    @Test
+    fun init_shouldShowScore_whenFactoryReturnsSuccess() {
+        val score = mock<Score>()
+        whenever(game.score).thenReturn(score)
+
+        setUpFactoryWithSuccessGame(game)
+        viewModel.initGame()
+
+        verify(scoreObserver).onChanged(eq(score))
+    }
+
+    /**
+     * Show first question when the game is built.
+     */
+    @Test
+    fun init_shouldShowFirstQuestion_whenFactoryReturnsSuccess() {
+        // Mock question
+        val question = mock<Question>()
+        // Stub, return question
+        whenever(game.nextQuestion()).thenReturn(question)
+
+        // create a successful game
+        setUpFactoryWithSuccessGame(game)
+
+        viewModel.initGame()
+        // Verify that question has loaded.
+        verify(questionObserver).onChanged(eq(question))
+    }
+
+    /**
+     * Load the next question
+     */
+    @Test
+    fun nextQuestion_shouldShowQuestion() {
+        // Mocking multiple questions
+        val question1 = mock<Question>()
+        val question2 = mock<Question>()
+        // Stubbing multiple questions.
+        whenever(game.nextQuestion())
+                .thenReturn(question1)
+                .thenReturn(question2)
+        // build game
+        setUpFactoryWithSuccessGame(game)
+        viewModel.initGame()
+
+        // Call next question in viewModel.
+        viewModel.nextQuestion()
+
+        // Verify that question has changed to question 2
+        verify(questionObserver).onChanged(eq(question2))
+    }
+
+    /**
+     * Answer a question, should delegate to the answer method of Game, save the high score and show
+     * the next question and score in that order
+     */
+    @Test
+    fun answerQuestion_shouldDelegateToGame_saveHighScore_showQuestionsAnsweredScored() {
+        // Mock objects
+        val score = mock<Score>()
+        val question = mock<Question>()
+
+        // Stub
+        whenever(game.score).thenReturn(score)
+        setUpFactoryWithSuccessGame(game)
+        viewModel.initGame()
+
+        viewModel.answerQuestion(question, "VALUE")
+
+        // check the following in order.
+        inOrder(game, repository, questionObserver, scoreObserver) {
+            verify(game).answer(eq(question), eq("VALUE"))
+            verify(repository).saveHighScore(any())
+            verify(scoreObserver).onChanged(eq(score))
+            verify(questionObserver).onChanged(eq(question))
+        }
+
+    }
+
+
     /**
      * Used to stub the buildGame() method from the CocktailsGameFactory class.
      */
     private fun setUpFactoryWithSuccessGame(game: Game) {
         doAnswer {
-            val callback: CocktailsGameFactory.Callback =
-                    it.getArgument(0)
+            val callback: CocktailsGameFactory.Callback = it.getArgument(0)
             callback.onSuccess(game)
-        }.whenever(factory.buildGame(any()))
+        }.whenever(factory).buildGame(any())
     }
+
 
     /**
      * Used to stube the buildGame() method from the CocktailsGameFactory class.

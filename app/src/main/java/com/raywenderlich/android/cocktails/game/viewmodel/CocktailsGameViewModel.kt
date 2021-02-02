@@ -20,24 +20,48 @@ class CocktailsGameViewModel(
     private val questionLiveData = MutableLiveData<Question>()
     private val scoreLiveData = MutableLiveData<Score>()
 
+
     fun getLoading(): LiveData<Boolean> = loadingLiveData
     fun getError(): LiveData<Boolean> = errorLiveData
     fun getQuestion(): LiveData<Question> = questionLiveData
     fun getScore(): LiveData<Score> = scoreLiveData
+
+    private var game: Game? = null
 
     fun initGame() {
         loadingLiveData.value = true
         errorLiveData.value = false
         factory.buildGame(object : CocktailsGameFactory.Callback {
             override fun onSuccess(game: Game) {
-                TODO("Not yet implemented")
+                loadingLiveData.value = false
+                errorLiveData.value = false
+                scoreLiveData.value = game.score
+                // this@ is a label qualifier, label refers to the scope "this" is meant to be from
+                this@CocktailsGameViewModel.game = game
+                nextQuestion()
             }
 
             override fun onError() {
-                TODO("Not yet implemented")
+                loadingLiveData.value = false
+                errorLiveData.value = true
             }
         })
     }
 
+    fun nextQuestion() {
+        game?.let {
+            questionLiveData.value = it.nextQuestion()
+        }
+    }
+
+    fun answerQuestion(question: Question, option: String) {
+        game?.let {
+            it.answer(question, option)
+            repository.saveHighScore(it.score.highest)
+            scoreLiveData.value = it.score
+            questionLiveData.value = question
+        }
+
+    }
 
 }
