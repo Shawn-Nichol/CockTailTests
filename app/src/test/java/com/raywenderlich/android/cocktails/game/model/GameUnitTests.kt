@@ -103,7 +103,7 @@ class GameUnitTests {
         // calls the answer() of the game object
         game.answer(question, "OPTION")
 
-         // Checks that the game score was not incremented.
+        // Checks that the game score was not incremented.
         verify(score, never()).increment()
     }
 
@@ -131,12 +131,13 @@ class GameUnitTests {
         whenever(question2.answer(anyString())).thenReturn(false)
         whenever(question3.answer(anyString())).thenReturn(false)
 
-        val game = Game(listOf(question1, question2, question3))
+        val question = listOf(question1, question2, question3)
+        val game = Game(question)
         game.answer(question1, "INCORRECT")
         game.answer(question2, "INCORRECT")
         game.answer(question3, "INCORRECT")
 
-        Assert.assertTrue(game.gameOver)
+        Assert.assertTrue(game.isOver)
     }
 
     @Test
@@ -164,4 +165,26 @@ class GameUnitTests {
     }
 
     @Test
+    fun whenAnsweringCorrectly_threeTimesInARow() {
+        val question1 = mock<Question>()
+        val question2 = mock<Question>()
+        val question3 = mock<Question>()
+        val question4 = mock<Question>()
+        val score = mock<Score>()
+
+        // Stub
+        whenever(question1.answer(anyString())).thenReturn(true)
+        whenever(question2.answer(anyString())).thenReturn(true)
+        whenever(question3.answer(anyString())).thenReturn(true)
+        whenever(question4.answer(anyString())).thenReturn(true)
+
+        val question = listOf(question1, question2, question3, question4)
+        val game = Game(question, score)
+        game.answer(question1, "CORRECT")
+        game.answer(question2, "CORRECT")
+        game.answer(question3, "CORRECT")
+        game.answer(question4, "CORRECT")
+
+        verify(score, times(1 + 1 + 1 + 2)).increment()
+    }
 }

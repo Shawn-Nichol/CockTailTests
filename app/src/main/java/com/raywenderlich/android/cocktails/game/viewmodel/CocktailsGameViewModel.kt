@@ -8,7 +8,6 @@ import com.raywenderlich.android.cocktails.game.CocktailsGameFactory
 import com.raywenderlich.android.cocktails.game.model.Game
 import com.raywenderlich.android.cocktails.game.model.Question
 import com.raywenderlich.android.cocktails.game.model.Score
-import org.jetbrains.annotations.TestOnly
 
 class CocktailsGameViewModel(
         private val repository: CocktailsRepository,
@@ -33,12 +32,12 @@ class CocktailsGameViewModel(
     fun initGame() {
         loadingLiveData.value = true
         errorLiveData.value = false
+        gameOverLiveData.value = false
         factory.buildGame(object : CocktailsGameFactory.Callback {
             override fun onSuccess(game: Game) {
                 loadingLiveData.value = false
                 errorLiveData.value = false
                 scoreLiveData.value = game.score
-                gameOverLiveData.value = false
                 // this@ is a label qualifier, label refers to the scope "this" is meant to be from
                 this@CocktailsGameViewModel.game = game
                 nextQuestion()
@@ -63,13 +62,10 @@ class CocktailsGameViewModel(
             repository.saveHighScore(it.score.highest)
             scoreLiveData.value = it.score
             questionLiveData.value = question
-//            gameOverLiveData.value = it.isOver
+            gameOverLiveData.value = it.isOver
         }
 
     }
 
-    fun endGame() {
-
-    }
 
 }

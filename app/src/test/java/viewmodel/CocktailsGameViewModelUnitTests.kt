@@ -32,6 +32,7 @@ class CocktailsGameViewModelUnitTests {
     private lateinit var errorObserver: Observer<Boolean>
     private lateinit var scoreObserver: Observer<Score>
     private lateinit var questionObserver: Observer<Question>
+    private lateinit var gameOverObserver: Observer<Boolean>
 
     @Before
     fun setup() {
@@ -51,10 +52,12 @@ class CocktailsGameViewModelUnitTests {
         errorObserver = mock()
         scoreObserver = mock()
         questionObserver = mock()
+        gameOverObserver = mock()
         viewModel.getLoading().observeForever(loadingObserver)
         viewModel.getScore().observeForever(scoreObserver)
         viewModel.getQuestion().observeForever(questionObserver)
         viewModel.getError().observeForever(errorObserver)
+        viewModel.getGameOver().observeForever(gameOverObserver)
 
 
 
@@ -232,27 +235,21 @@ class CocktailsGameViewModelUnitTests {
     @Test
     fun init_shouldHideGameOver() {
         viewModel.initGame()
-      //  verify().onChanged(eq(false))
+        verify(gameOverObserver).onChanged(eq(false))
     }
 
+
     @Test
-    fun whenAnsweringIncorrectly_threeTimesInARow_endGame() {
-        val question1 = mock<Question>()
-        val question2 = mock<Question>()
-        val question3 = mock<Question>()
+    fun answerQuestion_shouldShowGameOver_whenGameIsOver() {
         val score = mock<Score>()
-
-
-        // Stubbing
-        whenever(game.nextQuestion())
-                .thenReturn(question1)
-                .thenReturn(question2)
-                .thenReturn(question3)
-
-        // buildGame
+        whenever(game.score).thenReturn(score)
+        whenever(game.isOver).thenReturn(true)
+        setUpFactoryWithSuccessGame(game)
         viewModel.initGame()
 
-        viewModel.endGame()
+        viewModel.answerQuestion(mock(), "VALUE")
+
+        verify(gameOverObserver).onChanged(eq(true))
     }
 
 

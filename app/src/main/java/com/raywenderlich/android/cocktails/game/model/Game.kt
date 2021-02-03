@@ -35,7 +35,7 @@ class Game(private val questions: List<Question>,
 
     private var questionIndex = -1
 
-    val gameOver: Boolean
+    val isOver: Boolean
         get() = questionsAnsweredIncorrectly >= 3
 
     var questionsAnsweredIncorrectly = 0
@@ -44,6 +44,7 @@ class Game(private val questions: List<Question>,
     fun nextQuestion(): Question? {
         if (questionIndex + 1 < questions.size) {
             questionIndex++
+
             return questions[questionIndex]
         }
         return null
@@ -54,6 +55,10 @@ class Game(private val questions: List<Question>,
         if (result) {
             score.increment()
             questionsAnsweredCorrectlySequentially ++
+
+            if(questionsAnsweredCorrectlySequentially > 3) {
+                score.increment()
+            }
         } else {
             questionsAnsweredIncorrectly ++
             questionsAnsweredCorrectlySequentially = 0
